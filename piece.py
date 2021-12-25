@@ -44,7 +44,10 @@ class Piece:
             checkLine = self.player.calculateCheckLine()
             moves = self.calculateValidMoves(board, False)
             for j in range(0, len(moves)):
-                if moves[j] in checkLine:
+                if moves[j] not in checkLine:
+                    if self.type == 'king':
+                        validMoves.append(moves[j])
+                elif self.type != 'king':
                     validMoves.append(moves[j])
             return validMoves
 

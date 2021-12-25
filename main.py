@@ -1,7 +1,7 @@
 # 0.1 version: Matyi:1, Gyula:1
 # 0.2 version: Matyi:0, Gyula:1
 
-#bugok: tudunk sakkba lepni, nem veszi figyelembe a sakkot
+#bugok: tudunk sakkba lepni
 
 from window import gui
 from board import Board
