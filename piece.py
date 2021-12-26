@@ -10,6 +10,7 @@ class Piece:
         self.tile = None
         self.player = None
         self.canvasElement = None
+        self.moveCount = 0
         self.hasMoved = False
         if color == 'black':
             self.xOff = 75
@@ -36,13 +37,13 @@ class Piece:
         img = im.crop(crop_rectangle)
         return img
 
-    def calculateValidMoves(self, board, ize = True, lastMoved = None):
+    def calculateValidMoves(self, board, lastMoved, ize = True):
         validMoves = []
         offSet = -1 if self.color == 'white' else 1
 
         if self.player.checkedBy != None and ize:
             checkLine = self.player.calculateCheckLine()
-            moves = self.calculateValidMoves(board, False)
+            moves = self.calculateValidMoves(board, lastMoved, False)
             for j in range(0, len(moves)):
                 if moves[j] not in checkLine:
                     if self.type == 'king':
@@ -50,21 +51,31 @@ class Piece:
                 elif self.type != 'king':
                     validMoves.append(moves[j])
             return validMoves
-
+        #mozoghat de csak ha benne marad a checklineban
+        #wtf king checkel from acrross the board
+        """
+        this shit is to prevent a piece guarding a check from moving lel
+        for i in range(len(self.player.enemy.pieces)):
+            if self.tile in self.player.calculateCheckLine(self.player.enemy.pieces[i]):
+                return self.player.calculateCheckLine(self.player.enemy.pieces[i])
+        """
         if self.type == 'pawn':
-            if board.tiles[self.x][self.y + (1 * offSet)].piece == None:
-                validMoves.append(board.tiles[self.x][self.y + (1 * offSet)])
-            if board.tiles[self.x][self.y + (2 * offSet)].piece == None and self.hasMoved == False:
-                validMoves.append(board.tiles[self.x][self.y + (2 * offSet)])
-            if self.validateCoordinates(self.x + 1, self.y + (1 * offSet)):
-                if board.tiles[self.x + 1][self.y + (1 * offSet)].piece != None:
-                    if board.tiles[self.x + 1][self.y + (1 * offSet)].piece.color != self.color:
-                        validMoves.append(board.tiles[self.x + 1][self.y + (1 * offSet)])
-            if self.validateCoordinates(self.x - 1, self.y + (1 * offSet)):
-                if board.tiles[self.x - 1][self.y + (1 * offSet)].piece != None:
-                    if board.tiles[self.x - 1][self.y + (1 * offSet)].piece.color != self.color:
-                        validMoves.append(board.tiles[self.x - 1][self.y + (1 * offSet)])
-
+            if self.hasMoved:
+                index = 2
+            else:
+                index = 3
+            for i in range(0, index):
+                if self.validateCoordinates(self.x, self.y + i * offSet):
+                    if board.tiles[self.x][self.y + i * offSet].piece == None:
+                        validMoves.append(board.tiles[self.x][self.y + i * offSet])
+            for i in range(-1, 2, 2):
+                if self.validateCoordinates(self.x + i, self.y + offSet):
+                    if board.tiles[self.x + i][self.y + offSet].piece in self.player.enemy.pieces:
+                        validMoves.append(board.tiles[self.x + i][self.y + offSet])
+            if lastMoved != None and lastMoved.type == 'pawn' and lastMoved.moveCount == 1 and self.y == lastMoved.y:
+                if self.validateCoordinates(lastMoved.x, lastMoved.y + 1 * offSet):
+                    validMoves.append(board.tiles[lastMoved.x][lastMoved.y + 1 * offSet])
+                
         if self.type == 'rook' or self.type == 'queen':
             for i in range(self.y + 1, len(board.tiles), 1):
                 if board.tiles[self.x][i].piece == None:

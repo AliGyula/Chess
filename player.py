@@ -1,5 +1,3 @@
-from board import Board
-
 class Player:
     def __init__(self, name, color, enemy, board):
         self.name = name
@@ -12,10 +10,14 @@ class Player:
 
         self.setupPieces()
 
-    def isChecked(self):
-        x, y = self.kingPosition()
+    def isChecked(self, pos = None):
+        if pos == None:
+            x, y = self.kingPosition()
+        else:
+            x, y = pos
+
         for i in range(len(self.enemy.pieces)):
-            if self.board.tiles[x][y] in self.enemy.pieces[i].calculateValidMoves(self.board, False):
+            if self.board.tiles[x][y] in self.enemy.pieces[i].calculateValidMoves(self.board, None, False):
                 self.checkedBy = self.enemy.pieces[i]
                 return True
         self.checkedBy = None
@@ -28,7 +30,7 @@ class Player:
         checkLine = self.calculateCheckLine()
         
         for i in range(len(self.pieces)):
-            moves = self.pieces[i].calculateValidMoves(self.board, False)
+            moves = self.pieces[i].calculateValidMoves(self.board, None, False)
             for j in range(len(moves)):
                 if moves[j] in checkLine and self.pieces[i].type != 'king':
                     return False
@@ -51,71 +53,82 @@ class Player:
     def deletePiece(self, piece):
         self.knockedPieces.append(self.pieces.remove(piece))
 
-    def calculateCheckLine(self):
+    def calculateCheckLine(self, piece = None):
         line = []
-        
-        for i in range(self.checkedBy.y, -1, -1):
-            if self.validateCoordinates(self.checkedBy.x, i):
-                if self.board.tiles[self.checkedBy.x][i].piece != None:
-                    if self.board.tiles[self.checkedBy.x][i].piece.type == 'king' and self.board.tiles[self.checkedBy.x][i].piece.color != self.checkedBy.color:
+        if piece == None:
+            piece = self.checkedBy
+
+        for i in range(piece.y, -1, -1):
+            if self.validateCoordinates(piece.x, i):
+                if self.board.tiles[piece.x][i].piece != None:
+                    if self.board.tiles[piece.x][i].piece.type == 'king' and self.board.tiles[piece.x][i].piece.color != piece.color:
                         return line
-                line.append(self.board.tiles[self.checkedBy.x][i])
+                line.append(self.board.tiles[piece.x][i])
         line = []
-        for i in range(self.checkedBy.y, 8, 1):
-            if self.validateCoordinates(self.checkedBy.x, i):
-                if self.board.tiles[self.checkedBy.x][i].piece != None:
-                    if self.board.tiles[self.checkedBy.x][i].piece.type == 'king' and self.board.tiles[self.checkedBy.x][i].piece.color != self.checkedBy.color:
+        for i in range(piece.y, 8, 1):
+            if self.validateCoordinates(piece.x, i):
+                if self.board.tiles[piece.x][i].piece != None:
+                    if self.board.tiles[piece.x][i].piece.type == 'king' and self.board.tiles[piece.x][i].piece.color != piece.color:
                         return line
-                line.append(self.board.tiles[self.checkedBy.x][i])
+                line.append(self.board.tiles[piece.x][i])
         line = []
-        for i in range(self.checkedBy.x, -1, -1):
-            if self.validateCoordinates(i, self.checkedBy.y):
-                if self.board.tiles[i][self.checkedBy.y].piece != None and self.board.tiles[i][self.checkedBy.y].piece.color != self.checkedBy.color:
-                    if self.board.tiles[i][self.checkedBy.y].piece.type == 'king':
+        for i in range(piece.x, -1, -1):
+            if self.validateCoordinates(i, piece.y):
+                if self.board.tiles[i][piece.y].piece != None and self.board.tiles[i][piece.y].piece.color != piece.color:
+                    if self.board.tiles[i][piece.y].piece.type == 'king':
                         return line
-                line.append(self.board.tiles[i][self.checkedBy.y])
+                line.append(self.board.tiles[i][piece.y])
         line = []
-        for i in range(self.checkedBy.x, 8, 1):
-            if self.validateCoordinates(i, self.checkedBy.y):
-                if self.board.tiles[i][self.checkedBy.y].piece != None and self.board.tiles[i][self.checkedBy.y].piece.color != self.checkedBy.color:
-                    if self.board.tiles[i][self.checkedBy.y].piece.type == 'king':
+        for i in range(piece.x, 8, 1):
+            if self.validateCoordinates(i, piece.y):
+                if self.board.tiles[i][piece.y].piece != None and self.board.tiles[i][piece.y].piece.color != piece.color:
+                    if self.board.tiles[i][piece.y].piece.type == 'king':
                         return line
-                line.append(self.board.tiles[i][self.checkedBy.y])
+                line.append(self.board.tiles[i][piece.y])
         line = []
 
-        for i in range(0, self.checkedBy.y + 1):
-            if self.validateCoordinates(self.checkedBy.x - i, self.checkedBy.y - i):
-                if self.board.tiles[self.checkedBy.x - i][self.checkedBy.y - i].piece != None:
-                    if self.board.tiles[self.checkedBy.x - i][self.checkedBy.y - i].piece.type == 'king' and self.board.tiles[self.checkedBy.x - i][self.checkedBy.y - i].piece.color != self.checkedBy.color:
+        for i in range(0, piece.y + 1):
+            if self.validateCoordinates(piece.x - i, piece.y - i):
+                if self.board.tiles[piece.x - i][piece.y - i].piece != None:
+                    if self.board.tiles[piece.x - i][piece.y - i].piece.type == 'king' and self.board.tiles[piece.x - i][piece.y - i].piece.color != piece.color:
                         return line
-                line.append(self.board.tiles[self.checkedBy.x - i][self.checkedBy.y - i])
+                line.append(self.board.tiles[piece.x - i][piece.y - i])
         line = []
 
-        for i in range(0, self.checkedBy.y + 1):
-            if self.validateCoordinates(self.checkedBy.x + i, self.checkedBy.y - i):
-                if self.board.tiles[self.checkedBy.x + i][self.checkedBy.y - i].piece != None:
-                    if self.board.tiles[self.checkedBy.x + i][self.checkedBy.y - i].piece.type == 'king' and self.board.tiles[self.checkedBy.x + i][self.checkedBy.y - i].piece.color != self.checkedBy.color:
+        for i in range(0, piece.y + 1):
+            if self.validateCoordinates(piece.x + i, piece.y - i):
+                if self.board.tiles[piece.x + i][piece.y - i].piece != None:
+                    if self.board.tiles[piece.x + i][piece.y - i].piece.type == 'king' and self.board.tiles[piece.x + i][piece.y - i].piece.color != piece.color:
                         return line
-                line.append(self.board.tiles[self.checkedBy.x + i][self.checkedBy.y - i])
+                line.append(self.board.tiles[piece.x + i][piece.y - i])
         line = []
         
-        for i in range(0, (len(self.board.tiles) - self.checkedBy.y)):
-            if self.validateCoordinates(self.checkedBy.x + i, self.checkedBy.y + i):
-                if self.board.tiles[self.checkedBy.x + i][self.checkedBy.y + i].piece != None:
-                    if self.board.tiles[self.checkedBy.x + i][self.checkedBy.y + i].piece.type == 'king' and self.board.tiles[self.checkedBy.x + i][self.checkedBy.y + i].piece.color != self.checkedBy.color:
+        for i in range(0, (len(self.board.tiles) - piece.y)):
+            if self.validateCoordinates(piece.x + i, piece.y + i):
+                if self.board.tiles[piece.x + i][piece.y + i].piece != None:
+                    if self.board.tiles[piece.x + i][piece.y + i].piece.type == 'king' and self.board.tiles[piece.x + i][piece.y + i].piece.color != piece.color:
                         return line
-                line.append(self.board.tiles[self.checkedBy.x + i][self.checkedBy.y + i])
+                line.append(self.board.tiles[piece.x + i][piece.y + i])
         line = []
         
-        for i in range(0, (len(self.board.tiles) - self.checkedBy.y)):
-            if self.validateCoordinates(self.checkedBy.x - i, self.checkedBy.y + i):
-                if self.board.tiles[self.checkedBy.x - i][self.checkedBy.y + i].piece != None:
-                    if self.board.tiles[self.checkedBy.x - i][self.checkedBy.y + i].piece.type == 'king' and self.board.tiles[self.checkedBy.x - i][self.checkedBy.y + i].piece.color != self.checkedBy.color:
+        for i in range(0, (len(self.board.tiles) - piece.y)):
+            if self.validateCoordinates(piece.x - i, piece.y + i):
+                if self.board.tiles[piece.x - i][piece.y + i].piece != None:
+                    if self.board.tiles[piece.x - i][piece.y + i].piece.type == 'king' and self.board.tiles[piece.x - i][piece.y + i].piece.color != piece.color:
                         return line
-                line.append(self.board.tiles[self.checkedBy.x - i][self.checkedBy.y + i])
+                line.append(self.board.tiles[piece.x - i][piece.y + i])
 
         
-        return [self.board.tiles[self.checkedBy.x][self.checkedBy.y]]
+        if piece.type == 'knight':
+            return [self.board.tiles[piece.x][piece.y]]
+
+        return []
+
+    def getPieceByType(self, type):
+        for i in range(len(self.pieces)):
+            if self.pieces[i].type == type:
+                return self.pieces[i]
+        return None
 
     def validateCoordinates(self, x, y):
         return (x > -1 and x < 8 and y > -1 and y < 8)

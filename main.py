@@ -38,26 +38,37 @@ def onMouseDown(event, board):
 
 def onMouseUp(event, board):
     global handFull, pieceInHand, highlights, currentPlayer, lastMovedPiece, player1, player2
+
     if pieceInHand != None:
         moved = False
 
         index = getItemfromCoordinates(event.x, event.y)
         moves = pieceInHand.calculateValidMoves(board, lastMovedPiece)
+
         if board.tiles[index[0]][index[1]] in moves:
             board.tiles[pieceInHand.x][pieceInHand.y].deletePiece()
             pieceInHand.tile = board.tiles[index[0]][index[1]]
             pieceInHand.x = index[0]
             pieceInHand.y = index[1]
+
             if board.tiles[index[0]][index[1]].piece != None:
                 if currentPlayer == 'black':
                     player1.deletePiece(board.tiles[index[0]][index[1]].piece)
                 else:
                     player2.deletePiece(board.tiles[index[0]][index[1]].piece)
+            else:
+                if currentPlayer == 'black' and board.tiles[index[0]][index[1] - 1].piece != None:
+                    player1.deletePiece(board.tiles[index[0]][index[1] - 1].piece)
+                    board.tiles[index[0]][index[1] - 1].deletePiece()
+                elif currentPlayer == 'white' and board.tiles[index[0]][index[1] + 1].piece != None:
+                    player2.deletePiece(board.tiles[index[0]][index[1] + 1].piece)
+                    board.tiles[index[0]][index[1] + 1].deletePiece()
 
             board.tiles[index[0]][index[1]].piece = pieceInHand
             gui.canvas.coords(pieceInHand.canvasElement, board.tiles[index[0]][index[1]].x, board.tiles[index[0]][index[1]].y)
             gui.canvas.itemconfig(pieceInHand.canvasElement, image=pieceInHand.img)
             pieceInHand.hasMoved = True
+            pieceInHand.moveCount += 1
             moved = True
             lastMovedPiece = pieceInHand
             currentPlayer = 'black' if currentPlayer == 'white' else 'white'
