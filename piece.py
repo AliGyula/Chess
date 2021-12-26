@@ -36,11 +36,11 @@ class Piece:
         img = im.crop(crop_rectangle)
         return img
 
-    def calculateValidMoves(self, board, lastMoved, ize = True):
+    def calculateValidMoves(self, board, lastMoved, enterRecursion = True):
         validMoves = []
         offSet = -1 if self.color == 'white' else 1
-
-        if self.player.checkedBy != None and ize:
+        
+        if self.player.checkedBy != None and enterRecursion:
             checkLine = self.player.calculateCheckLine()
             moves = self.calculateValidMoves(board, lastMoved, False)
             for j in range(0, len(moves)):
@@ -50,14 +50,17 @@ class Piece:
                 elif self.type != 'king':
                     validMoves.append(moves[j])
             return validMoves
-        #mozoghat de csak ha benne marad a checklineban
-        #wtf king checkel from acrross the board
-        """
-        this shit is to prevent a piece guarding a check from moving lel
-        for i in range(len(self.player.enemy.pieces)):
-            if self.tile in self.player.calculateCheckLine(self.player.enemy.pieces[i]):
-                return self.player.calculateCheckLine(self.player.enemy.pieces[i])
-        """
+        
+        if enterRecursion:
+            for i in range(len(self.player.enemy.pieces)):
+                checkLine = self.player.calculateCheckLine(self.player.enemy.pieces[i])
+                if self.tile in checkLine:
+                    moves = self.calculateValidMoves(board, lastMoved, False)
+                    for i in range(len(moves)):
+                        if moves[i] in checkLine:
+                            validMoves.append(moves[i])
+                    return validMoves
+        
         if self.type == 'pawn':
             if self.hasMoved:
                 index = 2

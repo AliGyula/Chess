@@ -25,6 +25,7 @@ def onMouseDown(event, board):
     global handFull, pieceInHand, highlights, currentPlayer, lastMovedPiece
     moves = []
     index = getItemfromCoordinates(event.x, event.y)
+
     if handFull == False and board.tiles[index[0]][index[1]].piece != None and board.tiles[index[0]][index[1]].piece.color == currentPlayer:
         handFull = True
         pieceInHand = board.tiles[index[0]][index[1]].piece
@@ -56,7 +57,7 @@ def onMouseUp(event, board):
                     player1.deletePiece(board.tiles[index[0]][index[1]].piece)
                 else:
                     player2.deletePiece(board.tiles[index[0]][index[1]].piece)
-            else:
+            elif pieceInHand.type == 'pawn' and lastMovedPiece!= None and lastMovedPiece.type == 'pawn' and lastMovedPiece.moveCount == 1:
                 if currentPlayer == 'black' and board.tiles[index[0]][index[1] - 1].piece != None:
                     player1.deletePiece(board.tiles[index[0]][index[1] - 1].piece)
                     board.tiles[index[0]][index[1] - 1].deletePiece()

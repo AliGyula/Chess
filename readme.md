@@ -9,7 +9,7 @@
 
 [ ] King should not be able to move into check
 
-[ ] Pieces guarding a check should not be able to move
+[x] Pieces guarding a check should not be able to move away
 
 [ ] Stalemate
 

@@ -51,12 +51,19 @@ class Player:
                         self.pieces.append(self.board.tiles[i][j].piece)
 
     def deletePiece(self, piece):
-        self.knockedPieces.append(self.pieces.remove(piece))
+        if piece in self.pieces:
+            self.knockedPieces.append(self.pieces.remove(piece))
 
     def calculateCheckLine(self, piece = None):
         line = []
         if piece == None:
             piece = self.checkedBy
+
+        if piece.type == 'king':
+            return []
+
+        if piece.type == 'knight' or piece.type == 'pawn':
+            return [self.board.tiles[piece.x][piece.y]]
 
         for i in range(piece.y, -1, -1):
             if self.validateCoordinates(piece.x, i):
@@ -117,10 +124,6 @@ class Player:
                     if self.board.tiles[piece.x - i][piece.y + i].piece.type == 'king' and self.board.tiles[piece.x - i][piece.y + i].piece.color != piece.color:
                         return line
                 line.append(self.board.tiles[piece.x - i][piece.y + i])
-
-        
-        if piece.type == 'knight':
-            return [self.board.tiles[piece.x][piece.y]]
 
         return []
 
