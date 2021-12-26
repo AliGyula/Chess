@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import Canvas
 
 from PIL import ImageTk
-from board import Board
 import os
 
 class gui(tk.Frame):
@@ -28,7 +27,7 @@ class gui(tk.Frame):
 
     def createCanvas(self):
         color = 'black'
-        self.canvas = Canvas(self.master, width=self.width, height=self.height, background='floral white')
+        self.canvas = Canvas(self.master, width=self.width, height=self.height, background='white')
         for i in range(len(self.board)):
             for j in range(len(self.board)):
                 if (i % 2 == 1 and j % 2 == 1) or (i % 2 == 0 and j % 2 == 0):

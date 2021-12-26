@@ -165,6 +165,7 @@ class Piece:
                     if self.validateCoordinates(i, j):
                         if board.tiles[i][j].piece == None or board.tiles[i][j].piece.color != self.color:
                             validMoves.append(board.tiles[i][j])
+            
         
 
         return validMoves

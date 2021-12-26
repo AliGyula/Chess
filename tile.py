@@ -10,4 +10,6 @@ class Tile:
         self.piece = None
 
     def __str__(self):
+        if self.piece != None:
+            return f"x: {self.x}, y: {self.y}, Piece: ({self.piece.color}, {self.piece.type})"
         return f"x: {self.x}, y: {self.y}"
