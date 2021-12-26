@@ -11,6 +11,7 @@ class Board:
         color = ''
         i = 0
         j = 0
+        
         for x in range(0, 600, 75):
             self.tiles.append([])
             for y in range(0, 600, 75):
