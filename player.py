@@ -18,9 +18,9 @@ class Player:
 
         for i in range(len(self.enemy.pieces)):
             if self.board.tiles[x][y] in self.enemy.pieces[i].calculateValidMoves(self.board, None, False):
-                self.checkedBy = self.enemy.pieces[i]
+                if pos == None: self.checkedBy = self.enemy.pieces[i]
                 return True
-        self.checkedBy = None
+        if pos == None: self.checkedBy = None
         return False
 
     def isInMate(self):

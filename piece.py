@@ -6,6 +6,7 @@ class Piece:
         self.y = y
         self.color = color
         self.type = type
+        self.isCastling = False
         self.tile = None
         self.player = None
         self.canvasElement = None
@@ -40,15 +41,12 @@ class Piece:
         validMoves = []
         offSet = -1 if self.color == 'white' else 1
         
-        if self.player.checkedBy != None and enterRecursion:
+        if self.player.checkedBy != None and enterRecursion and self.type != 'king':
             checkLine = self.player.calculateCheckLine()
             moves = self.calculateValidMoves(board, lastMoved, False)
             for j in range(0, len(moves)):
-                if moves[j] not in checkLine:
-                    if self.type == 'king':
+                if moves[j] in checkLine:
                         validMoves.append(moves[j])
-                elif self.type != 'king':
-                    validMoves.append(moves[j])
             return validMoves
         
         if enterRecursion:
@@ -167,12 +165,29 @@ class Piece:
                 for j in range(self.y - 1, self.y + 2):
                     if self.validateCoordinates(i, j):
                         if board.tiles[i][j].piece == None or board.tiles[i][j].piece.color != self.color:
-                            validMoves.append(board.tiles[i][j])
+                            if enterRecursion and not self.player.isChecked((i, j)):
+                                validMoves.append(board.tiles[i][j])
+            leftLineEmpty = True
+            rightLineEmpty = True
+            for i in range(1, self.x):
+                if board.tiles[i][self.y].piece != None:
+                    leftLineEmpty = False
             
-        
+            for i in range(self.x + 1, 7):
+                if board.tiles[i][self.y].piece != None:
+                    rightLineEmpty = False
+
+            if self.hasMoved == False and board.tiles[0][self.y].piece != None and board.tiles[0][self.y].piece.hasMoved == False and leftLineEmpty and self.player.checkedBy == None:
+                if enterRecursion and not self.player.isChecked((self.x - 1, self.y)) and not self.player.isChecked((self.x - 2, self.y)):
+                    validMoves.append(board.tiles[self.x - 2][self.y])
+                    self.isCastling = True
+            
+            if self.hasMoved == False and board.tiles[7][self.y].piece != None and board.tiles[7][self.y].piece.hasMoved == False and rightLineEmpty and self.player.checkedBy == None:
+                if enterRecursion and not self.player.isChecked((self.x + 1, self.y)) and not self.player.isChecked((self.x + 2, self.y)):
+                    validMoves.append(board.tiles[self.x + 2][self.y])
+                    self.isCastling = True
 
         return validMoves
-
 
     def validateCoordinates(self, x, y):
         return (x > -1 and x < 8 and y > -1 and y < 8)

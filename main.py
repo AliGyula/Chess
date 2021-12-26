@@ -35,7 +35,8 @@ def onMouseDown(event, board):
         gui.canvas.itemconfig(pieceInHand.canvasElement, image=pieceInHand.img)
         moves = pieceInHand.calculateValidMoves(board, lastMovedPiece)
     for i in range(len(moves)):
-        highlights.append(gui.canvas.create_rectangle(moves[i].x, moves[i].y, moves[i].x + 75, moves[i].y + 75, fill = "green", stipple='gray50'))
+        if moves[i].piece == None or moves[i].piece.type != 'king':
+            highlights.append(gui.canvas.create_rectangle(moves[i].x, moves[i].y, moves[i].x + 75, moves[i].y + 75, fill = "green", stipple='gray50'))
 
 def onMouseUp(event, board):
     global handFull, pieceInHand, highlights, currentPlayer, lastMovedPiece, player1, player2
@@ -46,11 +47,34 @@ def onMouseUp(event, board):
         index = getItemfromCoordinates(event.x, event.y)
         moves = pieceInHand.calculateValidMoves(board, lastMovedPiece)
 
-        if board.tiles[index[0]][index[1]] in moves:
+        if board.tiles[index[0]][index[1]] in moves and (board.tiles[index[0]][index[1]].piece == None or board.tiles[index[0]][index[1]].piece.type != 'king'):
             board.tiles[pieceInHand.x][pieceInHand.y].deletePiece()
             pieceInHand.tile = board.tiles[index[0]][index[1]]
             pieceInHand.x = index[0]
             pieceInHand.y = index[1]
+
+            if pieceInHand.type == 'king':
+                if pieceInHand.isCastling:
+                    if pieceInHand.x < 4:
+                        rook = board.tiles[0][pieceInHand.y].piece
+                        board.tiles[0][pieceInHand.y].deletePiece()
+                        gui.canvas.coords(rook.canvasElement, board.tiles[index[0] + 1][index[1]].x, board.tiles[index[0] + 1][index[1]].y)
+                        gui.canvas.itemconfig(rook.canvasElement, image=rook.img)
+                        rook.hasMoved = True
+                        rook.moveCount += 1
+                        rook.x = index[0] + 1
+                        rook.y = index[1]
+                        board.tiles[index[0] + 1][index[1]].piece = rook
+                    elif pieceInHand.x > 5:
+                        rook = board.tiles[7][pieceInHand.y].piece
+                        board.tiles[7][pieceInHand.y].deletePiece()
+                        gui.canvas.coords(rook.canvasElement, board.tiles[index[0] - 1][index[1]].x, board.tiles[index[0] - 1][index[1]].y)
+                        gui.canvas.itemconfig(rook.canvasElement, image=rook.img)
+                        rook.hasMoved = True
+                        rook.moveCount += 1
+                        rook.x = index[0] - 1
+                        rook.y = index[1]
+                        board.tiles[index[0] - 1][index[1]].piece = rook
 
             if board.tiles[index[0]][index[1]].piece != None:
                 if currentPlayer == 'black':
@@ -82,6 +106,8 @@ def onMouseUp(event, board):
         pieceInHand = None
         handFull = False
         highlights = []
+    player1.isChecked()
+    player2.isChecked()
 
 if __name__ == '__main__':
     window = Tk()
@@ -96,8 +122,6 @@ if __name__ == '__main__':
         gui.update()
         gui.update_idletasks()
         time.sleep(0.01)
-        player1.isChecked()
-        player2.isChecked()
         """
         if player1.isInMate():
             messagebox.showinfo("Window", "fekete nyert")

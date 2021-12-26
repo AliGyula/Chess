@@ -5,9 +5,9 @@
 
 [x] en passant
 
-[ ] castling
+[x] castling
 
-[ ] King should not be able to move into check
+[x] King should not be able to move into check
 
 [x] Pieces guarding a check should not be able to move away
 
