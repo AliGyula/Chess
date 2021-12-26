@@ -1,5 +1,4 @@
 from PIL import Image, ImageTk
-from pathFinding import pathFinding
 
 class Piece:
     def __init__(self, x, y, color, type):
