@@ -1,5 +1,4 @@
-#TODO:
-
+# TODO:
 
 [x] King should be able to move away from a check
 
